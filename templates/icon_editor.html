@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Icon Editor - Twinkly Square</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: white;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 32px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .editor-container {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .card h2 {
+            font-size: 20px;
+            margin-bottom: 20px;
+            color: #667eea;
+        }
+
+        /* Grid Canvas */
+        .grid-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 500px;
+        }
+
+        .grid {
+            display: inline-grid;
+            grid-template-rows: repeat(16, 1fr);
+            gap: 2px;
+            background: #ddd;
+            padding: 2px;
+            border-radius: 8px;
+        }
+
+        .grid-row {
+            display: grid;
+            grid-template-columns: repeat(24, 1fr);
+            gap: 2px;
+        }
+
+        .grid-cell {
+            width: 20px;
+            height: 20px;
+            background: #f0f0f0;
+            cursor: pointer;
+            transition: all 0.1s;
+            border-radius: 2px;
+        }
+
+        .grid-cell.active {
+            background: #667eea;
+        }
+
+        .grid-cell:hover {
+            transform: scale(1.1);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .control-group label {
+            font-weight: 600;
+            color: #667eea;
+            font-size: 14px;
+        }
+
+        input[type="text"],
+        select {
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus,
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: white;
+        }
+
+        .btn-primary {
+            background: #667eea;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-success {
+            background: #28a745;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
+        }
+
+        .btn-danger {
+            background: #dc3545;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(220, 53, 69, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(108, 117, 125, 0.4);
+        }
+
+        .message {
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 10px;
+            text-align: center;
+            font-weight: 500;
+            display: none;
+        }
+
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .icon-list {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 10px;
+        }
+
+        .icon-item {
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .icon-item:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+        }
+
+        .icon-item.selected {
+            background: #667eea;
+            color: white;
+        }
+
+        .icon-preview {
+            display: inline-grid;
+            grid-template-rows: repeat(16, 1fr);
+            gap: 1px;
+            background: #ddd;
+            padding: 1px;
+            border-radius: 3px;
+            margin-left: 10px;
+        }
+
+        .icon-preview-row {
+            display: grid;
+            grid-template-columns: repeat(24, 1fr);
+            gap: 1px;
+        }
+
+        .icon-preview-cell {
+            width: 3px;
+            height: 3px;
+            background: #f0f0f0;
+        }
+
+        .icon-preview-cell.active {
+            background: #667eea;
+        }
+
+        .tool-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        @media (max-width: 1024px) {
+            .editor-container {
+                grid-template-columns: 1fr;
+            }
+
+            .grid-cell {
+                width: 15px;
+                height: 15px;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .grid-cell {
+                width: 12px;
+                height: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 Icon Editor - Twinkly Square</h1>
+
+        <div class="editor-container">
+            <!-- Main Grid Editor -->
+            <div class="card">
+                <h2>24x16 Grid Editor</h2>
+                <div class="grid-container">
+                    <div class="grid" id="iconGrid"></div>
+                </div>
+                <div style="margin-top: 20px; text-align: center; color: #666; font-size: 14px;">
+                    Klikk for å tegne • Høyreklikk eller Shift+Klikk for å slette
+                </div>
+            </div>
+
+            <!-- Controls -->
+            <div class="card">
+                <h2>Kontroller</h2>
+                <div class="controls">
+                    <div class="control-group">
+                        <label>Ikonnavn</label>
+                        <input type="text" id="iconName" placeholder="f.eks. stue, kjøkken...">
+                    </div>
+
+                    <div class="control-group">
+                        <label>Last inn eksisterende ikon</label>
+                        <select id="iconSelect">
+                            <option value="">Velg ikon...</option>
+                        </select>
+                    </div>
+
+                    <div class="tool-buttons">
+                        <button class="btn-primary" onclick="loadSelectedIcon()">Last inn</button>
+                        <button class="btn-secondary" onclick="clearGrid()">Tøm</button>
+                    </div>
+
+                    <button class="btn-success" onclick="saveIcon()">💾 Lagre ikon</button>
+                    <button class="btn-danger" onclick="deleteIcon()">🗑️ Slett ikon</button>
+
+                    <div class="message" id="message"></div>
+                </div>
+
+                <div style="margin-top: 20px;">
+                    <h3 style="font-size: 16px; color: #667eea; margin-bottom: 10px;">Eksisterende ikoner</h3>
+                    <div class="icon-list" id="iconList"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentIcon = Array(16).fill(null).map(() => Array(24).fill(0));
+        let isDrawing = false;
+        let drawMode = 1; // 1 = draw, 0 = erase
+
+        // Initialize grid
+        function initGrid() {
+            const grid = document.getElementById('iconGrid');
+            grid.innerHTML = '';
+
+            for (let row = 0; row < 16; row++) {
+                const rowDiv = document.createElement('div');
+                rowDiv.className = 'grid-row';
+
+                for (let col = 0; col < 24; col++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'grid-cell';
+                    cell.dataset.row = row;
+                    cell.dataset.col = col;
+
+                    // Mouse events
+                    cell.addEventListener('mousedown', (e) => {
+                        e.preventDefault();
+                        isDrawing = true;
+                        if (e.shiftKey || e.button === 2) {
+                            drawMode = 0;
+                        } else {
+                            drawMode = 1;
+                        }
+                        toggleCell(row, col);
+                    });
+
+                    cell.addEventListener('mouseenter', () => {
+                        if (isDrawing) {
+                            toggleCell(row, col);
+                        }
+                    });
+
+                    cell.addEventListener('contextmenu', (e) => {
+                        e.preventDefault();
+                        drawMode = 0;
+                        toggleCell(row, col);
+                    });
+
+                    rowDiv.appendChild(cell);
+                }
+
+                grid.appendChild(rowDiv);
+            }
+
+            // Global mouse up
+            document.addEventListener('mouseup', () => {
+                isDrawing = false;
+            });
+        }
+
+        function toggleCell(row, col) {
+            currentIcon[row][col] = drawMode;
+            updateGrid();
+        }
+
+        function updateGrid() {
+            const cells = document.querySelectorAll('.grid-cell');
+            cells.forEach(cell => {
+                const row = parseInt(cell.dataset.row);
+                const col = parseInt(cell.dataset.col);
+                if (currentIcon[row][col] === 1) {
+                    cell.classList.add('active');
+                } else {
+                    cell.classList.remove('active');
+                }
+            });
+        }
+
+        function clearGrid() {
+            currentIcon = Array(16).fill(null).map(() => Array(24).fill(0));
+            updateGrid();
+            showMessage('Grid tømt', 'success');
+        }
+
+        async function loadIcons() {
+            try {
+                const response = await fetch('/api/icons');
+                const data = await response.json();
+
+                if (data.success) {
+                    const select = document.getElementById('iconSelect');
+                    const list = document.getElementById('iconList');
+                    
+                    select.innerHTML = '<option value="">Velg ikon...</option>';
+                    list.innerHTML = '';
+
+                    Object.keys(data.icons).sort().forEach(name => {
+                        // Add to select
+                        const option = document.createElement('option');
+                        option.value = name;
+                        option.textContent = name;
+                        select.appendChild(option);
+
+                        // Add to list with preview
+                        const item = document.createElement('div');
+                        item.className = 'icon-item';
+                        item.innerHTML = `<span>${name}</span>`;
+                        item.onclick = () => {
+                            document.getElementById('iconSelect').value = name;
+                            loadSelectedIcon();
+                        };
+                        list.appendChild(item);
+                    });
+                }
+            } catch (error) {
+                showMessage('Feil ved lasting av ikoner: ' + error.message, 'error');
+            }
+        }
+
+        async function loadSelectedIcon() {
+            const select = document.getElementById('iconSelect');
+            const iconName = select.value;
+
+            if (!iconName) {
+                showMessage('Velg et ikon først', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/icons/${iconName}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    currentIcon = data.icon;
+                    document.getElementById('iconName').value = iconName;
+                    updateGrid();
+                    showMessage(`Ikon "${iconName}" lastet inn`, 'success');
+                } else {
+                    showMessage(data.error, 'error');
+                }
+            } catch (error) {
+                showMessage('Feil ved lasting av ikon: ' + error.message, 'error');
+            }
+        }
+
+        async function saveIcon() {
+            const iconName = document.getElementById('iconName').value.trim();
+
+            if (!iconName) {
+                showMessage('Skriv inn et ikonnavn', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/icons/${iconName}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ icon: currentIcon })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showMessage(data.message, 'success');
+                    await loadIcons(); // Reload icon list
+                } else {
+                    showMessage(data.error, 'error');
+                }
+            } catch (error) {
+                showMessage('Feil ved lagring av ikon: ' + error.message, 'error');
+            }
+        }
+
+        async function deleteIcon() {
+            const iconName = document.getElementById('iconName').value.trim();
+
+            if (!iconName) {
+                showMessage('Skriv inn navnet på ikonet som skal slettes', 'error');
+                return;
+            }
+
+            if (!confirm(`Er du sikker på at du vil slette ikonet "${iconName}"?`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/icons/${iconName}`, {
+                    method: 'DELETE'
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showMessage(data.message, 'success');
+                    document.getElementById('iconName').value = '';
+                    clearGrid();
+                    await loadIcons(); // Reload icon list
+                } else {
+                    showMessage(data.error, 'error');
+                }
+            } catch (error) {
+                showMessage('Feil ved sletting av ikon: ' + error.message, 'error');
+            }
+        }
+
+        function showMessage(text, type) {
+            const message = document.getElementById('message');
+            message.textContent = text;
+            message.className = `message ${type}`;
+            message.style.display = 'block';
+
+            setTimeout(() => {
+                message.style.display = 'none';
+            }, 3000);
+        }
+
+        // Initialize
+        initGrid();
+        loadIcons();
+    </script>
+</body>
+</html>

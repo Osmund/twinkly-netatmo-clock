@@ -27,6 +27,7 @@ Dette prosjektet viser temperatur fra Netatmo værstasjon, Yr utetemperatur og s
 - 🔄 Automatisk rotasjon mellom alle lokasjoner
 - 🕐 Digital klokke med farger som endres gjennom døgnet
 - 🌐 Web-grensesnitt på port 8080 for kontroll og overvåking
+- 🎨 Visuell ikon-editor (24x16 grid) for å lage og redigere ikoner
 - 🔐 OAuth2 autentisering med automatisk token refresh
 
 ### Forutsetninger
@@ -182,6 +183,28 @@ python3 main.py
 
 Webgrensesnittet har et moderne, responsivt design som fungerer på både desktop og mobil. All kontroll skjer i sanntid uten behov for å restarte programmet.
 
+#### Ikon-editor
+
+For å lage eller redigere ikoner, kjør ikon-editoren:
+
+```bash
+cd "Twinkly Square"
+source .venv/bin/activate
+python3 icon_editor.py
+```
+
+Åpne nettleser på `http://<din-ip>:5000` for å:
+- **Tegne ikoner** - Bruk et 24x16 grid for å lage pikselmønstre
+- **Laste inn eksisterende ikoner** - Rediger ikoner som allerede finnes
+- **Lagre ikoner** - Lagrer direkte til `icons.py` for umiddelbar bruk
+- **Slette ikoner** - Fjern ikoner du ikke trenger
+
+Ikon-editoren har:
+- Klikk for å tegne, høyreklikk eller Shift+klikk for å slette
+- Dra med musen for å tegne/slette flere piksler
+- Live forhåndsvisning av alle ikoner
+- Responsivt design for desktop og mobil
+
 #### Systemd service kommandoer
 
 ```bash
@@ -219,9 +242,11 @@ sudo journalctl -u twinkly-web.service -f
 ├── twinkly_client.py       # Twinkly Square kontroller
 ├── icons.py                # Ikoner for lokasjoner
 ├── web_server.py           # Flask webserver
+├── icon_editor.py          # Visuell ikon-editor
 ├── cleanup_display.py      # Cleanup script
 ├── templates/
-│   └── index.html         # Web-grensesnitt
+│   ├── index.html         # Web-grensesnitt
+│   └── icon_editor.html   # Ikon-editor grensesnitt
 ├── requirements.txt        # Python avhengigheter
 ├── .env                    # Din konfigurasjon (ikke commit!)
 ├── display_state.json      # State persistence (genereres automatisk)
@@ -321,6 +346,7 @@ This project displays temperature from a Netatmo weather station, Yr outdoor tem
 - 🔄 Automatic rotation between all locations
 - 🕐 Digital clock with colors that change throughout the day
 - 🌐 Web interface on port 8080 for control and monitoring
+- 🎨 Visual icon editor (24x16 grid) for creating and editing icons
 - 🔐 OAuth2 authentication with automatic token refresh
 
 ### Prerequisites
@@ -476,6 +502,28 @@ Open a browser at `http://<your-ip>:8080` to:
 
 The web interface has a modern, responsive design that works on both desktop and mobile. All controls work in real-time without needing to restart the program.
 
+#### Icon Editor
+
+To create or edit icons, run the icon editor:
+
+```bash
+cd "Twinkly Square"
+source .venv/bin/activate
+python3 icon_editor.py
+```
+
+Open a browser at `http://<your-ip>:5000` to:
+- **Draw icons** - Use a 24x16 grid to create pixel patterns
+- **Load existing icons** - Edit icons that already exist
+- **Save icons** - Saves directly to `icons.py` for immediate use
+- **Delete icons** - Remove icons you don't need
+
+The icon editor features:
+- Click to draw, right-click or Shift+click to erase
+- Drag with mouse to draw/erase multiple pixels
+- Live preview of all icons
+- Responsive design for desktop and mobile
+
 #### Systemd service commands
 
 ```bash
@@ -511,9 +559,11 @@ sudo journalctl -u twinkly-web.service -f
 ├── twinkly_client.py       # Twinkly Square controller
 ├── icons.py                # Location icons
 ├── web_server.py           # Flask web server
+├── icon_editor.py          # Visual icon editor
 ├── cleanup_display.py      # Cleanup script
 ├── templates/
-│   └── index.html         # Web interface
+│   ├── index.html         # Web interface
+│   └── icon_editor.html   # Icon editor interface
 ├── requirements.txt        # Python dependencies
 ├── .env                    # Your configuration (do not commit!)
 ├── display_state.json      # State persistence (auto-generated)
