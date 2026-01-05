@@ -229,8 +229,6 @@ sudo journalctl -u twinkly-display.service -f
 sudo journalctl -u twinkly-web.service -f
 ```
 
-```
-
 ### Prosjektstruktur
 
 ```
