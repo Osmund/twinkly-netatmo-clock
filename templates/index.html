@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Twinkly Display Kontroll</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        h1 {
+            color: white;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 28px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        h2 {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: #667eea;
+        }
+
+        .status {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #dc3545;
+        }
+
+        .status-dot.active {
+            background: #28a745;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .toggle-btn {
+            width: 60px;
+            height: 34px;
+            background: #ccc;
+            border-radius: 34px;
+            position: relative;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .toggle-btn.active {
+            background: #28a745;
+        }
+
+        .toggle-btn::after {
+            content: '';
+            position: absolute;
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: white;
+            top: 4px;
+            left: 4px;
+            transition: transform 0.3s;
+        }
+
+        .toggle-btn.active::after {
+            transform: translateX(26px);
+        }
+
+        .mode-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .mode-btn {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        .mode-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .location-select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+            margin-bottom: 15px;
+            background: white;
+        }
+
+        .location-select:disabled {
+            background: #f8f9fa;
+            color: #999;
+        }
+
+        .interval-control {
+            margin-bottom: 20px;
+        }
+
+        .interval-value {
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 8px;
+            border-radius: 5px;
+            background: #ddd;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+            border: none;
+        }
+
+        .apply-btn {
+            width: 100%;
+            padding: 15px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .apply-btn:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .apply-btn:active {
+            transform: translateY(0);
+        }
+
+        .message {
+            padding: 12px;
+            border-radius: 10px;
+            margin-top: 15px;
+            text-align: center;
+            font-weight: 500;
+            display: none;
+        }
+
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎄 Twinkly Display</h1>
+
+        <div class="card">
+            <h2>Status</h2>
+            <div class="status">
+                <div class="status-indicator">
+                    <div class="status-dot" id="statusDot"></div>
+                    <span id="statusText">Laster...</span>
+                </div>
+                <div class="toggle-btn" id="toggleBtn"></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Visningsmodus</h2>
+            <div class="mode-buttons">
+                <button class="mode-btn" data-mode="rotate">
+                    🔄 Roter
+                </button>
+                <button class="mode-btn active" data-mode="single">
+                    📍 Enkelt
+                </button>
+            </div>
+
+            <select class="location-select" id="locationSelect">
+                <option value="">Velg lokasjon...</option>
+            </select>
+            
+            <div id="temperatureDisplay" style="margin-top: 15px; padding: 15px; background: #f8f9fa; border-radius: 10px; display: none;">
+                <div style="font-size: 14px; color: #667eea; margin-bottom: 10px; font-weight: 600;">Temperaturer:</div>
+                <div id="temperatureList"></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Oppdateringsintervall</h2>
+            <div class="interval-control">
+                <div class="interval-value">
+                    <span id="intervalValue">10</span> sekunder
+                </div>
+                <input type="range" id="intervalSlider" min="5" max="300" value="10" step="5">
+            </div>
+            <button class="apply-btn" id="applyIntervalBtn">Bruk intervall</button>
+        </div>
+
+        <div class="card">
+            <h2>🕐 Klokke</h2>
+            <div class="status">
+                <div class="status-indicator">
+                    <div class="status-dot" id="clockStatusDot"></div>
+                    <span id="clockStatusText">Klokke av</span>
+                </div>
+                <div class="toggle-btn" id="clockToggle">
+                    <div class="toggle-slider"></div>
+                </div>
+            </div>
+            <p style="font-size: 13px; color: #666; margin-top: 10px;">
+                Vis digital klokke på displayet med fancy farger som endres gjennom døgnet.
+            </p>
+        </div>
+
+        <div class="message" id="message"></div>
+    </div>
+
+    <script>
+        let currentState = {
+            mode: 'single',
+            location: 'Stue - 70:ee:50:74:46:9c',
+            interval: 10,
+            service_running: false,
+            show_clock: false,
+            locations: [],
+            temperatures: {}
+        };
+
+        // Hent status
+        async function fetchStatus() {
+            try {
+                const response = await fetch('/api/status');
+                const serverState = await response.json();
+                
+                // Oppdater state fra server
+                currentState.service_running = serverState.service_running;
+                currentState.locations = serverState.locations;
+                currentState.interval = serverState.interval;
+                currentState.mode = serverState.mode;
+                currentState.show_clock = serverState.show_clock || false;
+                currentState.temperatures = serverState.temperatures || {};
+                if (serverState.location) {
+                    currentState.location = serverState.location;
+                }
+                
+                updateUI();
+            } catch (error) {
+                console.error('Feil ved henting av status:', error);
+            }
+        }
+
+        // Oppdater UI
+        function updateUI() {
+            const statusDot = document.getElementById('statusDot');
+            const statusText = document.getElementById('statusText');
+            const toggleBtn = document.getElementById('toggleBtn');
+
+            if (currentState.service_running) {
+                statusDot.classList.add('active');
+                statusText.textContent = 'Kjører';
+                toggleBtn.classList.add('active');
+            } else {
+                statusDot.classList.remove('active');
+                statusText.textContent = 'Stoppet';
+                toggleBtn.classList.remove('active');
+            }
+            
+            // Oppdater klokke-toggle
+            const clockStatusDot = document.getElementById('clockStatusDot');
+            const clockStatusText = document.getElementById('clockStatusText');
+            const clockToggle = document.getElementById('clockToggle');
+            
+            if (currentState.show_clock) {
+                clockStatusDot.classList.add('active');
+                clockStatusText.textContent = 'Klokke på';
+                clockToggle.classList.add('active');
+            } else {
+                clockStatusDot.classList.remove('active');
+                clockStatusText.textContent = 'Klokke av';
+                clockToggle.classList.remove('active');
+            }
+
+            // Oppdater mode buttons
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                if (btn.dataset.mode === currentState.mode) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+
+            // Oppdater location select
+            const locationSelect = document.getElementById('locationSelect');
+            locationSelect.innerHTML = '<option value="">Velg lokasjon...</option>';
+            currentState.locations.forEach(loc => {
+                const option = document.createElement('option');
+                option.value = loc;
+                option.textContent = loc;
+                if (loc === currentState.location) {
+                    option.selected = true;
+                }
+                locationSelect.appendChild(option);
+            });
+            locationSelect.disabled = currentState.mode !== 'single';
+
+            // Oppdater temperaturer
+            const tempDisplay = document.getElementById('temperatureDisplay');
+            const tempList = document.getElementById('temperatureList');
+            
+            if (Object.keys(currentState.temperatures).length > 0) {
+                tempDisplay.style.display = 'block';
+                tempList.innerHTML = '';
+                
+                Object.entries(currentState.temperatures).forEach(([location, temp]) => {
+                    const tempItem = document.createElement('div');
+                    tempItem.style.cssText = 'display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #e0e0e0;';
+                    
+                    const locationName = location.split(' - ')[0];
+                    const isActive = location === currentState.location && currentState.mode === 'single';
+                    const isElectricity = location.toLowerCase().includes('strøm') || location.toLowerCase().includes('electricity');
+                    
+                    let displayValue;
+                    if (isElectricity) {
+                        displayValue = `<span style="font-weight: 600; color: ${getElectricityColor(temp)};">${temp.toFixed(2)} øre/kWh</span>`;
+                    } else {
+                        displayValue = `<span style="font-weight: 600; color: ${getTempColor(temp)};">${temp.toFixed(1)}°C</span>`;
+                    }
+                    
+                    tempItem.innerHTML = `
+                        <span style="font-weight: ${isActive ? '600' : '400'}; color: ${isActive ? '#667eea' : '#333'};">${locationName}</span>
+                        ${displayValue}
+                    `;
+                    tempList.appendChild(tempItem);
+                });
+            } else {
+                tempDisplay.style.display = 'none';
+            }
+
+            // Oppdater interval
+            document.getElementById('intervalSlider').value = currentState.interval;
+            document.getElementById('intervalValue').textContent = currentState.interval;
+        }
+        
+        // Få farge basert på temperatur
+        function getTempColor(temp) {
+            if (temp < 0) return '#0066cc';
+            if (temp < 10) return '#00aaff';
+            if (temp < 20) return '#ff9900';
+            return '#ff3300';
+        }
+        
+        // Få farge basert på strømpris (øre/kWh)
+        function getElectricityColor(price) {
+            if (price < 50) return '#00cc00';  // Grønn (billig)
+            if (price < 100) return '#ff9900'; // Gul (middels)
+            return '#ff0000';  // Rød (dyrt)
+        }
+
+        // Toggle service
+        document.getElementById('toggleBtn').addEventListener('click', async () => {
+            const endpoint = currentState.service_running ? '/api/stop' : '/api/start';
+            try {
+                const response = await fetch(endpoint, { method: 'POST' });
+                const result = await response.json();
+                if (result.success) {
+                    showMessage(result.message, 'success');
+                    setTimeout(fetchStatus, 1000);
+                } else {
+                    showMessage(result.error, 'error');
+                }
+            } catch (error) {
+                showMessage('Feil ved toggle av service', 'error');
+            }
+        });
+
+        // Mode buttons - endrer umiddelbart
+        document.querySelectorAll('.mode-btn').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const newMode = btn.dataset.mode;
+                if (newMode === currentState.mode) return;
+                
+                currentState.mode = newMode;
+                updateUI();
+                
+                // Send til server umiddelbart
+                const modeData = {
+                    mode: newMode
+                };
+                if (newMode === 'single') {
+                    if (!currentState.location) {
+                        showMessage('Velg en lokasjon først', 'error');
+                        return;
+                    }
+                    modeData.location = currentState.location;
+                }
+                
+                try {
+                    const response = await fetch('/api/mode', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(modeData)
+                    });
+                    const result = await response.json();
+                    if (result.success) {
+                        showMessage(newMode === 'single' ? '📍 Enkeltvisning aktivert' : '🔄 Rotasjon aktivert', 'success');
+                    } else {
+                        showMessage('Feil: ' + result.error, 'error');
+                    }
+                } catch (error) {
+                    showMessage('Feil ved bytte av modus', 'error');
+                }
+            });
+        });
+
+        // Location select - endrer umiddelbart
+        document.getElementById('locationSelect').addEventListener('change', async (e) => {
+            const newLocation = e.target.value;
+            if (!newLocation) return;
+            
+            currentState.location = newLocation;
+            
+            // Send til server umiddelbart (kun i single mode)
+            if (currentState.mode === 'single') {
+                try {
+                    const response = await fetch('/api/mode', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            mode: 'single',
+                            location: newLocation
+                        })
+                    });
+                    const result = await response.json();
+                    if (result.success) {
+                        showMessage('📍 Viser ' + newLocation.split(' - ')[0], 'success');
+                    } else {
+                        showMessage('Feil: ' + result.error, 'error');
+                    }
+                } catch (error) {
+                    showMessage('Feil ved bytte av lokasjon', 'error');
+                }
+            }
+        });
+
+        // Interval slider - kun oppdatere visuelt
+        document.getElementById('intervalSlider').addEventListener('input', (e) => {
+            document.getElementById('intervalValue').textContent = e.target.value;
+        });
+
+        // Apply interval button
+        document.getElementById('applyIntervalBtn').addEventListener('click', async () => {
+            const newInterval = parseInt(document.getElementById('intervalSlider').value);
+            
+            try {
+                const response = await fetch('/api/interval', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ interval: newInterval })
+                });
+                const result = await response.json();
+                
+                if (result.success) {
+                    currentState.interval = newInterval;
+                    showMessage('✅ Intervall oppdatert til ' + newInterval + ' sekunder', 'success');
+                } else {
+                    showMessage('Feil: ' + result.error, 'error');
+                }
+            } catch (error) {
+                showMessage('Feil ved oppdatering av intervall', 'error');
+            }
+        });
+
+        // Clock toggle button
+        document.getElementById('clockToggle').addEventListener('click', async () => {
+            const newClockState = !currentState.show_clock;
+            
+            try {
+                const response = await fetch('/api/clock', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ show_clock: newClockState })
+                });
+                const result = await response.json();
+                
+                if (result.success) {
+                    currentState.show_clock = newClockState;
+                    updateUI();
+                    showMessage(result.message, 'success');
+                } else {
+                    showMessage('Feil: ' + result.error, 'error');
+                }
+            } catch (error) {
+                showMessage('Feil ved toggling av klokke', 'error');
+            }
+        });
+
+        // Show message
+        function showMessage(text, type) {
+            const message = document.getElementById('message');
+            message.textContent = text;
+            message.className = `message ${type}`;
+            message.style.display = 'block';
+            setTimeout(() => {
+                message.style.display = 'none';
+            }, 3000);
+        }
+
+        // Initial load
+        fetchStatus();
+        // Auto-refresh every 5 seconds
+        setInterval(fetchStatus, 5000);
+    </script>
+</body>
+</html>

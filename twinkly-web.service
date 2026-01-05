@@ -1,0 +1,16 @@
+[Unit]
+Description=Twinkly Display Web Server
+After=network.target
+
+[Service]
+Type=simple
+User=admog
+WorkingDirectory=/home/admog/Code/Twinkly Square
+ExecStart="/home/admog/Code/Twinkly Square/.venv/bin/python" "/home/admog/Code/Twinkly Square/web_server.py"
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,17 @@
+[Unit]
+Description=Twinkly Display - Netatmo Temperature Display
+After=network.target
+
+[Service]
+Type=simple
+User=admog
+WorkingDirectory=/home/admog/Code/Twinkly Square
+ExecStart="/home/admog/Code/Twinkly Square/.venv/bin/python" "/home/admog/Code/Twinkly Square/main.py"
+ExecStop="/home/admog/Code/Twinkly Square/.venv/bin/python" "/home/admog/Code/Twinkly Square/cleanup_display.py"
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,7 @@
+{
+  "mode": "rotate",
+  "location": null,
+  "interval": 5,
+  "service_running": false,
+  "show_clock": false
+}
