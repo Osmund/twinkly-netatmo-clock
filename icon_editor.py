@@ -83,12 +83,16 @@ def save_icon_to_file(icon_name, icon_data):
     with open(ICONS_FILE, 'r', encoding='utf-8') as f:
         content = f.read()
     
-    # Format icon data som Python code
+    # Format icon data som Python code - aldri split array-elementer over flere linjer
     icon_str_lines = [f"    '{icon_name}': ["]
     for row in icon_data:
-        row_str = ', '.join(str(x) for x in row)
-        icon_str_lines.append(f"        [{row_str}],")
-    icon_str_lines.append("    ]")
+        # Skriv hele raden på én linje - Python håndterer lange linjer fint
+        row_str = '[' + ', '.join(str(x) for x in row) + '],'
+        icon_str_lines.append(f"        {row_str}")
+    # Fjern siste komma og legg til avsluttende bracket
+    if icon_str_lines[-1].endswith(','):
+        icon_str_lines[-1] = icon_str_lines[-1][:-1]
+    icon_str_lines.append("    ],")
     icon_str = '\n'.join(icon_str_lines)
     
     # Find the LOCATION_ICONS dictionary

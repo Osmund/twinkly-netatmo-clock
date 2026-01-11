@@ -180,8 +180,11 @@ python3 main.py
 - **Justere oppdateringsintervall** - Velg mellom 5-300 sekunder for hvor ofte displayet skal oppdatere data
 - **Slå klokke på/av** - Vis en digital klokke på displayet med vakre farger som endres gjennom døgnet
 - **Starte/stoppe displayet** - Full kontroll over displayets tilstand
+- **Koble til Twinkly på nytt** - Manuell reconnect-knapp hvis Twinkly har vært frakoblet (f.eks. etter strømbrudd)
 
 Webgrensesnittet har et moderne, responsivt design som fungerer på både desktop og mobil. All kontroll skjer i sanntid uten behov for å restarte programmet.
+
+**Automatisk reconnect:** Programmet prøver automatisk å koble til Twinkly ved oppstart (10 forsøk × 3s) og ved tilkoblingsfeil under kjøring (5 forsøk × 2s). Hvis Twinkly har vært frakoblet lenger, kan du bruke reconnect-knappen i webgrensesnittet.
 
 #### Ikon-editor
 
@@ -497,8 +500,11 @@ Open a browser at `http://<your-ip>:8080` to:
 - **Adjust update interval** - Choose between 5-300 seconds for how often the display should update data
 - **Toggle clock on/off** - Display a digital clock on the display with beautiful colors that change throughout the day
 - **Start/stop the display** - Full control over the display state
+- **Reconnect to Twinkly** - Manual reconnect button if Twinkly has been disconnected (e.g., after a power outage)
 
 The web interface has a modern, responsive design that works on both desktop and mobile. All controls work in real-time without needing to restart the program.
+
+**Automatic reconnect:** The program automatically attempts to connect to Twinkly at startup (10 attempts × 3s) and on connection failures during operation (5 attempts × 2s). If Twinkly has been disconnected for longer, you can use the reconnect button in the web interface.
 
 #### Icon Editor
 

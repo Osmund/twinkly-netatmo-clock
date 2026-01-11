@@ -325,6 +325,41 @@ def toggle_clock():
         print(f"Feil i toggle_clock: {e}")
         return jsonify({'success': False, 'error': str(e)}), 500
 
+@app.route('/api/reconnect', methods=['POST'])
+def reconnect_twinkly():
+    """Prøv å koble til Twinkly på nytt"""
+    try:
+        from twinkly_client import TwinklySquare
+        twinkly_ip = os.getenv('TWINKLY_IP')
+        
+        if not twinkly_ip:
+            return jsonify({'success': False, 'error': 'Twinkly IP ikke konfigurert'}), 400
+        
+        # Prøv å koble til
+        twinkly = TwinklySquare(ip_address=twinkly_ip)
+        
+        max_retries = 5
+        for attempt in range(1, max_retries + 1):
+            if twinkly.connect():
+                if twinkly.set_mode_rt():
+                    return jsonify({
+                        'success': True, 
+                        'message': f'✓ Koblet til Twinkly (forsøk {attempt}/{max_retries})'
+                    })
+            
+            if attempt < max_retries:
+                import time
+                time.sleep(2)
+        
+        return jsonify({
+            'success': False, 
+            'error': f'Kunne ikke koble til Twinkly etter {max_retries} forsøk'
+        }), 500
+        
+    except Exception as e:
+        print(f"Feil i reconnect_twinkly: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
 if __name__ == '__main__':
     # Opprett templates mappe hvis den ikke finnes
     templates_dir = Path(__file__).parent / 'templates'

@@ -32,6 +32,20 @@ def get_state():
     }
 
 
+def reconnect_twinkly(twinkly, max_retries=5, retry_delay=2):
+    """Prøv å koble til Twinkly på nytt med retry-logikk"""
+    for attempt in range(1, max_retries + 1):
+        if twinkly.connect() and twinkly.set_mode_rt():
+            print(f"✓ Koblet til Twinkly på nytt (forsøk {attempt}/{max_retries})")
+            return True
+        if attempt < max_retries:
+            print(f"  Reconnect forsøk {attempt}/{max_retries} feilet, prøver igjen om {retry_delay}s...")
+            time.sleep(retry_delay)
+    
+    print(f"✗ Kunne ikke koble til Twinkly etter {max_retries} forsøk")
+    return False
+
+
 def main():
     """Hovedfunksjon"""
     print("=" * 50)
@@ -73,18 +87,35 @@ def main():
     print("\n2. Kobler til Twinkly Square...")
     twinkly = TwinklySquare(ip_address=twinkly_ip)
     
-    # Initialiser Yr og Strømpris klienter
-    print("\n2b. Initialiserer Yr og Strømpris...")
-    yr_client = YrClient(lat=58.0, lon=6.5)  # Sokndal
-    electricity_client = ElectricityClient(region='NO2')  # Sør-Norge
+    # Prøv å koble til med retry - Twinkly kan ta tid å starte opp
+    max_retries = 10
+    retry_delay = 3
+    connected = False
     
-    if not twinkly.connect():
+    for attempt in range(1, max_retries + 1):
+        if twinkly.connect():
+            connected = True
+            print(f"✓ Koblet til Twinkly (forsøk {attempt}/{max_retries})")
+            break
+        else:
+            if attempt < max_retries:
+                print(f"  Kunne ikke koble til Twinkly (forsøk {attempt}/{max_retries}), prøver igjen om {retry_delay}s...")
+                time.sleep(retry_delay)
+            else:
+                print(f"✗ Kunne ikke koble til Twinkly etter {max_retries} forsøk")
+    
+    if not connected:
         print("✗ Kunne ikke koble til Twinkly Square")
         return
     
     if not twinkly.set_mode_rt():
         print("✗ Kunne ikke sette Twinkly til realtime modus")
         return
+    
+    # Initialiser Yr og Strømpris klienter
+    print("\n2b. Initialiserer Yr og Strømpris...")
+    yr_client = YrClient(lat=58.0, lon=6.5)  # Sokndal
+    electricity_client = ElectricityClient(region='NO2')  # Sør-Norge
     
     # Hent alle tilgjengelige temperaturer
     print("\n3. Henter tilgjengelige moduler...")
@@ -163,8 +194,10 @@ def main():
                         print(f"✓ Viser klokke: {now.hour:02d}:{now.minute:02d}")
                         first_run = False
                 else:
-                    print("✗ Kunne ikke oppdatere Twinkly display")
-                    twinkly.set_mode_rt()
+                    print("✗ Kunne ikke oppdatere Twinkly display - prøver å koble til på nytt...")
+                    if not reconnect_twinkly(twinkly):
+                        print("⚠ Kunne ikke gjenopprette tilkobling, venter...")
+                        time.sleep(10)
                 
                 # Oppdater klokken hvert sekund
                 time.sleep(1)
@@ -193,8 +226,10 @@ def main():
                         if twinkly.show_temperature_with_icon(temperature, single_location):
                             print(f"✓ Viser {single_location}: {temperature}°C")
                         else:
-                            print("✗ Kunne ikke oppdatere Twinkly display")
-                            twinkly.set_mode_rt()
+                            print("✗ Kunne ikke oppdatere Twinkly display - prøver å koble til på nytt...")
+                            if not reconnect_twinkly(twinkly):
+                                print("⚠ Kunne ikke gjenopprette tilkobling, venter...")
+                                time.sleep(10)
                     else:
                         print(f"✗ Lokasjon {single_location} ikke funnet")
                     
@@ -218,8 +253,10 @@ def main():
                             if twinkly.show_temperature_with_icon(temperature, current_location):
                                 print(f"✓ Viser {current_location}: {temperature}°C")
                             else:
-                                print("✗ Kunne ikke oppdatere Twinkly display")
-                                twinkly.set_mode_rt()
+                                print("✗ Kunne ikke oppdatere Twinkly display - prøver å koble til på nytt...")
+                                if not reconnect_twinkly(twinkly):
+                                    print("⚠ Kunne ikke gjenopprette tilkobling, venter...")
+                                    time.sleep(10)
                         else:
                             print(f"✗ Kunne ikke hente temperatur fra {current_location}")
                         

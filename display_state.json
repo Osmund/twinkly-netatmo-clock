@@ -1,7 +1,7 @@
 {
-  "mode": "rotate",
-  "location": null,
+  "mode": "single",
+  "location": "Kjeller",
   "interval": 5,
   "service_running": false,
-  "show_clock": false
+  "show_clock": true
 }

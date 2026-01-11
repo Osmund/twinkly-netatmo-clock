@@ -244,6 +244,9 @@
                 </div>
                 <div class="toggle-btn" id="toggleBtn"></div>
             </div>
+            <button class="apply-btn" id="reconnectBtn" style="margin-top: 15px; background: #17a2b8;">
+                🔄 Koble til Twinkly på nytt
+            </button>
         </div>
 
         <div class="card">
@@ -573,6 +576,31 @@
                 }
             } catch (error) {
                 showMessage('Feil ved toggling av klokke', 'error');
+            }
+        });
+
+        // Reconnect button
+        document.getElementById('reconnectBtn').addEventListener('click', async () => {
+            const btn = document.getElementById('reconnectBtn');
+            btn.disabled = true;
+            btn.textContent = '⏳ Kobler til...';
+            
+            try {
+                const response = await fetch('/api/reconnect', {
+                    method: 'POST'
+                });
+                const result = await response.json();
+                
+                if (result.success) {
+                    showMessage(result.message, 'success');
+                } else {
+                    showMessage('Feil: ' + result.error, 'error');
+                }
+            } catch (error) {
+                showMessage('Feil ved tilkobling', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '🔄 Koble til Twinkly på nytt';
             }
         });
 
