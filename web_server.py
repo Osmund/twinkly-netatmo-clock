@@ -123,7 +123,7 @@ def status():
         
         # Legg til Yr utetemperatur
         try:
-            yr = YrClient(lat=58.0, lon=6.5)
+            yr = YrClient(lat=58.35, lon=6.63)
             yr_temp = yr.get_current_temperature()
             if yr_temp is not None:
                 temperatures['Ute (Sokndal)'] = yr_temp

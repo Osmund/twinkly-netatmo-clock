@@ -114,7 +114,7 @@ def main():
     
     # Initialiser Yr og Strømpris klienter
     print("\n2b. Initialiserer Yr og Strømpris...")
-    yr_client = YrClient(lat=58.0, lon=6.5)  # Sokndal
+    yr_client = YrClient(lat=58.35, lon=6.63)  # Sokndal
     electricity_client = ElectricityClient(region='NO2')  # Sør-Norge
     
     # Hent alle tilgjengelige temperaturer
@@ -208,12 +208,39 @@ def main():
             
             # Legg til Yr og Strømpris
             yr_temp = yr_client.get_current_temperature()
+            yr_weather = yr_client.get_weather_data()
+            
             if yr_temp is not None:
                 all_temps['Ute (Sokndal)'] = yr_temp
             
             electricity_price = electricity_client.get_current_price()
             if electricity_price is not None:
                 all_temps['Strømpris NO2'] = electricity_price
+            
+            # Vis væranimajoner og strømpris-varsling
+            show_animations = False  # Vis animasjoner hver 5. iterasjon
+            if location_index % 5 == 0:
+                show_animations = True
+            
+            if show_animations:
+                # Vis strømpris-varsling hvis pris er høy (over 100 øre)
+                if electricity_price and electricity_price > 100:
+                    print(f"⚡ Strømpris-varsling: {electricity_price} øre/kWh")
+                    twinkly.show_electricity_warning(electricity_price, threshold=100, duration=2)
+                
+                # Vis væranimasjon basert på værsymbol
+                if yr_weather and yr_weather.get('symbol'):
+                    symbol = yr_weather['symbol']
+                    if 'rain' in symbol or 'drizzle' in symbol:
+                        print("🌧️ Viser regn-animasjon")
+                        twinkly.show_rain_animation(duration=2)
+                    elif 'snow' in symbol or 'sleet' in symbol:
+                        print("❄️ Viser snø-animasjon")
+                        twinkly.show_snow_animation(duration=2)
+                    elif 'clearsky' in symbol or 'fair' in symbol:
+                        print("☀️ Viser sol-animasjon")
+                        twinkly.show_sun_animation(duration=2)
+
             
             if all_temps:
                 # Oppdater locations liste

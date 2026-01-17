@@ -577,6 +577,182 @@ class TwinklySquare:
         
         return self.show_pattern(canvas)
     
+    def show_sun_animation(self, duration=3):
+        """
+        Vis sol-animasjon med pulserende sol
+        
+        Args:
+            duration: Varighet i sekunder
+        """
+        import math
+        frames = int(duration * 10)  # 10 fps
+        
+        for frame in range(frames):
+            canvas = [[(0, 0, 20) for _ in range(self.width)] for _ in range(self.height)]  # Blå himmel
+            
+            # Sol i midten
+            center_x, center_y = self.width // 2, self.height // 2
+            pulse = 0.8 + 0.2 * math.sin(frame * 0.5)  # Pulsering
+            
+            # Sol-sirkel
+            for y in range(self.height):
+                for x in range(self.width):
+                    dist = ((x - center_x) ** 2 + (y - center_y) ** 2) ** 0.5
+                    if dist < 3 * pulse:
+                        # Gul sol
+                        canvas[y][x] = (255, 255, 0)
+                    elif dist < 3.5 * pulse:
+                        # Orange kant
+                        canvas[y][x] = (255, 150, 0)
+            
+            # Stråler
+            if frame % 5 < 3:
+                for angle in range(0, 360, 45):
+                    rad = math.radians(angle)
+                    for r in range(4, 8):
+                        x = int(center_x + r * math.cos(rad))
+                        y = int(center_y + r * math.sin(rad))
+                        if 0 <= x < self.width and 0 <= y < self.height:
+                            canvas[y][x] = (255, 255, 100)
+            
+            self.show_pattern(canvas)
+            time.sleep(0.1)
+    
+    def show_rain_animation(self, duration=3):
+        """
+        Vis regn-animasjon med fallende dråper
+        
+        Args:
+            duration: Varighet i sekunder
+        """
+        import random
+        frames = int(duration * 10)
+        
+        # Initialiser dråper
+        drops = []
+        for _ in range(15):
+            drops.append({
+                'x': random.randint(0, self.width - 1),
+                'y': random.randint(-10, self.height - 1),
+                'speed': random.uniform(0.5, 1.5)
+            })
+        
+        for frame in range(frames):
+            canvas = [[(20, 20, 40) for _ in range(self.width)] for _ in range(self.height)]  # Mørk himmel
+            
+            # Oppdater og tegn dråper
+            for drop in drops:
+                drop['y'] += drop['speed']
+                
+                # Reset dråpe som faller ut
+                if drop['y'] >= self.height:
+                    drop['y'] = -2
+                    drop['x'] = random.randint(0, self.width - 1)
+                
+                # Tegn dråpe
+                y = int(drop['y'])
+                x = int(drop['x'])
+                if 0 <= y < self.height and 0 <= x < self.width:
+                    canvas[y][x] = (100, 100, 255)  # Blå dråpe
+                    # Liten hale
+                    if y > 0:
+                        canvas[y - 1][x] = (50, 50, 150)
+            
+            self.show_pattern(canvas)
+            time.sleep(0.1)
+    
+    def show_snow_animation(self, duration=3):
+        """
+        Vis snø-animasjon med fallende snøfnugg
+        
+        Args:
+            duration: Varighet i sekunder
+        """
+        import random
+        frames = int(duration * 10)
+        
+        # Initialiser snøfnugg
+        flakes = []
+        for _ in range(20):
+            flakes.append({
+                'x': random.randint(0, self.width - 1),
+                'y': random.randint(-15, self.height - 1),
+                'speed': random.uniform(0.2, 0.6),
+                'drift': random.uniform(-0.2, 0.2)
+            })
+        
+        for frame in range(frames):
+            canvas = [[(10, 10, 30) for _ in range(self.width)] for _ in range(self.height)]  # Mørkeblå himmel
+            
+            # Oppdater og tegn snøfnugg
+            for flake in flakes:
+                flake['y'] += flake['speed']
+                flake['x'] += flake['drift']
+                
+                # Reset snøfnugg som faller ut
+                if flake['y'] >= self.height:
+                    flake['y'] = -2
+                    flake['x'] = random.randint(0, self.width - 1)
+                
+                # Wrap rundt kantene
+                if flake['x'] < 0:
+                    flake['x'] = self.width - 1
+                elif flake['x'] >= self.width:
+                    flake['x'] = 0
+                
+                # Tegn snøfnugg
+                y = int(flake['y'])
+                x = int(flake['x'])
+                if 0 <= y < self.height and 0 <= x < self.width:
+                    canvas[y][x] = (255, 255, 255)  # Hvit
+            
+            self.show_pattern(canvas)
+            time.sleep(0.1)
+    
+    def show_electricity_warning(self, price, threshold=100, duration=2):
+        """
+        Vis strømpris-varsling med blinkende rødt
+        
+        Args:
+            price: Strømpris i øre/kWh
+            threshold: Grense for når det skal varsles
+            duration: Varighet i sekunder
+        """
+        if price < threshold:
+            return  # Ikke vis varsling hvis pris er lav
+        
+        frames = int(duration * 4)  # 4 fps for blinking
+        
+        for frame in range(frames):
+            if frame % 2 == 0:
+                # Rød bakgrunn med lyn-symbol
+                canvas = [[(255, 0, 0) for _ in range(self.width)] for _ in range(self.height)]
+                
+                # Tegn lyn-symbol i midten (forenklet)
+                mid_x = self.width // 2
+                lyn_pattern = [
+                    (mid_x, 3),
+                    (mid_x, 4),
+                    (mid_x - 1, 5),
+                    (mid_x - 1, 6),
+                    (mid_x, 7),
+                    (mid_x, 8),
+                    (mid_x + 1, 9),
+                    (mid_x + 1, 10),
+                    (mid_x, 11),
+                    (mid_x, 12)
+                ]
+                
+                for x, y in lyn_pattern:
+                    if 0 <= x < self.width and 0 <= y < self.height:
+                        canvas[y][x] = (255, 255, 0)  # Gul lyn
+            else:
+                # Svart skjerm (av)
+                canvas = [[(0, 0, 0) for _ in range(self.width)] for _ in range(self.height)]
+            
+            self.show_pattern(canvas)
+            time.sleep(0.25)
+    
     def clear(self) -> bool:
         """
         Sletter displayet (alle LEDs av)
