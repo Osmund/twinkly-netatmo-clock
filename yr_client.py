@@ -163,6 +163,20 @@ class YrClient:
         if symbol:
             return 'cloudy' in symbol or 'partlycloudy' in symbol
         return False
+    
+    def has_thunder(self):
+        """Sjekk om det er torden"""
+        symbol = self.get_weather_symbol()
+        if symbol:
+            return 'thunder' in symbol
+        return False
+    
+    def is_foggy(self):
+        """Sjekk om det er tåke"""
+        symbol = self.get_weather_symbol()
+        if symbol:
+            return 'fog' in symbol
+        return False
 
 
 if __name__ == "__main__":

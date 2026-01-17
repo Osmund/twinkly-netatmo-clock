@@ -231,12 +231,18 @@ def main():
                 # Vis væranimasjon basert på værsymbol
                 if yr_weather and yr_weather.get('symbol'):
                     symbol = yr_weather['symbol']
-                    if 'rain' in symbol or 'drizzle' in symbol:
+                    if 'thunder' in symbol:
+                        print("⛈️ Viser torden-animasjon")
+                        twinkly.show_thunder_animation(duration=3)
+                    elif 'rain' in symbol or 'drizzle' in symbol:
                         print("🌧️ Viser regn-animasjon")
                         twinkly.show_rain_animation(duration=2)
                     elif 'snow' in symbol or 'sleet' in symbol:
                         print("❄️ Viser snø-animasjon")
                         twinkly.show_snow_animation(duration=2)
+                    elif 'fog' in symbol:
+                        print("🌫️ Viser tåke-animasjon")
+                        twinkly.show_fog_animation(duration=2)
                     elif 'clearsky' in symbol or 'fair' in symbol:
                         print("☀️ Viser sol-animasjon")
                         twinkly.show_sun_animation(duration=2)

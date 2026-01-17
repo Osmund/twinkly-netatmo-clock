@@ -753,6 +753,90 @@ class TwinklySquare:
             self.show_pattern(canvas)
             time.sleep(0.25)
     
+    def show_thunder_animation(self, duration=3):
+        """
+        Vis torden-animasjon med lyn og regn
+        
+        Args:
+            duration: Varighet i sekunder
+        """
+        import random
+        frames = int(duration * 10)
+        
+        # Initialiser regndr åper
+        drops = []
+        for _ in range(20):
+            drops.append({
+                'x': random.randint(0, self.width - 1),
+                'y': random.randint(-10, self.height - 1),
+                'speed': random.uniform(1.0, 2.0)  # Raskere regn under tordenvær
+            })
+        
+        for frame in range(frames):
+            # Mørk himmel
+            canvas = [[(10, 10, 20) for _ in range(self.width)] for _ in range(self.height)]
+            
+            # Oppdater og tegn regndråper
+            for drop in drops:
+                drop['y'] += drop['speed']
+                if drop['y'] >= self.height:
+                    drop['y'] = -2
+                    drop['x'] = random.randint(0, self.width - 1)
+                
+                y = int(drop['y'])
+                x = int(drop['x'])
+                if 0 <= y < self.height and 0 <= x < self.width:
+                    canvas[y][x] = (100, 100, 255)
+            
+            # Lyn-effekt (tilfeldig)
+            if random.random() < 0.15:  # 15% sjanse for lyn
+                # Hvit flash over hele skjermen
+                for y in range(self.height):
+                    for x in range(self.width):
+                        canvas[y][x] = (255, 255, 255)
+            elif random.random() < 0.1:  # 10% sjanse for lyn-bolt
+                # Tegn lyn-bolt
+                mid_x = random.randint(self.width // 4, 3 * self.width // 4)
+                for y in range(0, self.height, 2):
+                    x_offset = random.choice([-1, 0, 1])
+                    x = mid_x + x_offset
+                    if 0 <= x < self.width:
+                        canvas[y][x] = (255, 255, 100)  # Gult lyn
+                        if y + 1 < self.height:
+                            canvas[y + 1][x] = (255, 255, 200)  # Hvitt lyn
+            
+            self.show_pattern(canvas)
+            time.sleep(0.1)
+    
+    def show_fog_animation(self, duration=3):
+        """
+        Vis tåke-animasjon med bevegelige tåkebanker
+        
+        Args:
+            duration: Varighet i sekunder
+        """
+        import random
+        import math
+        frames = int(duration * 10)
+        
+        for frame in range(frames):
+            canvas = [[(40, 40, 50) for _ in range(self.width)] for _ in range(self.height)]
+            
+            # Bevegelige tåkebanker
+            for y in range(self.height):
+                for x in range(self.width):
+                    # Bruk sinus-bølge for tåke-effekt
+                    wave1 = math.sin((x + frame * 0.3) * 0.5) * 0.5 + 0.5
+                    wave2 = math.sin((y + frame * 0.2) * 0.7) * 0.5 + 0.5
+                    fog_intensity = (wave1 + wave2) / 2
+                    
+                    # Grå tåke med varierende intensitet
+                    gray = int(100 + fog_intensity * 100)
+                    canvas[y][x] = (gray, gray, gray + 10)
+            
+            self.show_pattern(canvas)
+            time.sleep(0.1)
+    
     def clear(self) -> bool:
         """
         Sletter displayet (alle LEDs av)

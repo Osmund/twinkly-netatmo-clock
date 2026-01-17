@@ -26,7 +26,14 @@ Dette prosjektet viser temperatur fra Netatmo værstasjon, Yr utetemperatur og s
 - 🎨 Unike ikoner for hver lokasjon (Stue, Kjøkken, Kjeller, Loft, Ute, Strøm)
 - 🔄 Automatisk rotasjon mellom alle lokasjoner
 - 🕐 Digital klokke med farger som endres gjennom døgnet
-- 🌐 Web-grensesnitt på port 8080 for kontroll og overvåking
+- �️ Væranimasjoner basert på Yr data:
+  - ☀️ Sol: Pulserende sol med stråler
+  - 🌧️ Regn: Regndrøper som faller nedover
+  - ❄️ Snø: Snøfnugg som driver sakte nedover
+  - ⛈️ Torden: Lynstråler og hvite blinkende blitz
+  - 🌫️ Tåke: Bevegelige tåkebanker
+  - ⚡💰 Strømvarsel: Blinkende rød skjerm når strømprisen er over 100 øre/kWh
+- �🌐 Web-grensesnitt på port 8080 for kontroll og overvåking
 - 🎨 Visuell ikon-editor (24x16 grid) for å lage og redigere ikoner
 - 🔐 OAuth2 autentisering med automatisk token refresh
 
@@ -346,7 +353,14 @@ This project displays temperature from a Netatmo weather station, Yr outdoor tem
 - 🎨 Unique icons for each location (Living Room, Kitchen, Basement, Attic, Outside, Electricity)
 - 🔄 Automatic rotation between all locations
 - 🕐 Digital clock with colors that change throughout the day
-- 🌐 Web interface on port 8080 for control and monitoring
+- �️ Weather animations based on Yr data:
+  - ☀️ Sun: Pulsing sun with rays
+  - 🌧️ Rain: Falling raindrops
+  - ❄️ Snow: Drifting snowflakes
+  - ⛈️ Thunder: Lightning bolts and white flashes
+  - 🌫️ Fog: Moving fog banks
+  - ⚡💰 Electricity warning: Blinking red screen when price exceeds 100 øre/kWh
+- �🌐 Web interface on port 8080 for control and monitoring
 - 🎨 Visual icon editor (24x16 grid) for creating and editing icons
 - 🔐 OAuth2 authentication with automatic token refresh
 
